@@ -1,4 +1,4 @@
-import path, { isAbsolute, join } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 import { readFile } from 'node:fs';
 import { execFile, spawn } from 'node:child_process';
 import { defaults, pick } from 'lodash';
@@ -106,14 +106,16 @@ export const Curve = [
     'brainpoolP512r1',
     'brainpoolP512t1',
     'SM2',
+    'ed25519',
 ] as const;
 export type Curve = (typeof Curve)[number];
 
-export const Algorithm = ['rsa', 'ec'] as const;
+export const Algorithm = ['rsa', 'ec', 'ed'] as const;
 
 export type Algorithm = (typeof Algorithm)[number];
 
 export interface EasyRSAArgs {
+    easyrsa: string;
     pki: string;
     days: number;
     certDays: number;
@@ -164,6 +166,7 @@ interface Vars extends NodeJS.ProcessEnv {
 }
 
 class EasyRsaVars {
+    EASYRSA_DIR: string;
     EASYRSA_PKI: string;
     EASYRSA_KEY_SIZE?: string;
     EASYRSA_ALGO: Algorithm;
@@ -176,6 +179,7 @@ class EasyRsaVars {
     EASYRSA_BATCH: string;
 
     constructor(args: EasyRSAArgs) {
+        this.EASYRSA_DIR = args.easyrsa;
         this.EASYRSA_PKI = args.pki;
         this.EASYRSA_ALGO = args.algo;
         this.EASYRSA_BATCH = '1';
@@ -222,9 +226,10 @@ export default class EasyRSA {
         if (args.curve && !Curve.includes(args.curve))
             throw new Error('Curve not valid');
 
-        this.easyrsaDir = path.join(__dirname, '..', 'easyrsa');
+        this.easyrsaDir = args.easyrsa || join(__dirname, '..', 'easyrsa');
         const values: EasyRSAArgs = {
-            pki: path.join(this.easyrsaDir, 'pki'),
+            easyrsa: this.easyrsaDir,
+            pki: join(this.easyrsaDir, 'pki'),
             algo: 'rsa',
             digest: 'sha256',
             keySize: 2048,
@@ -254,7 +259,7 @@ export default class EasyRSA {
             const easyrsaBin = join(this.easyrsaDir, 'easyrsa');
             const easyrsa = spawn(easyrsaBin, args, {
                 cwd: this.easyrsaDir,
-                shell: true,
+                shell: false,
                 env: { ...process.env, ...this.vars },
             });
 
@@ -414,6 +419,7 @@ export default class EasyRSA {
 
             return await this.easyrsa(...opts, 'sign-req', type, name);
         } catch (error) {
+            // TODO добавить лог для отладки запуска easyrsa
             if (error instanceof Error) throw error;
             throw new Error('Fail to create certificate');
         }
