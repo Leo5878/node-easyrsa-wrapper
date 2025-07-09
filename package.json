@@ -15,7 +15,8 @@
     "coverage": "run test -- --coverage",
     "lint": "eslint",
     "prepublish": "run lint --fix && pnpm run build",
-    "build": "tsc"
+    "build": "tsc",
+    "postinstall": "tsc"
   },
   "keywords": [
     "node",
