@@ -10,13 +10,13 @@
   },
   "description": "An EasyRSA wrapper to maintain a private key infrastructure using Javascript",
   "main": "dist/index.js",
+  "packageManager": "pnpm@9.6.0",
   "scripts": {
     "test": "jest --runInBand",
-    "coverage": "run test -- --coverage",
+    "coverage": "pnpm run test -- --coverage",
     "lint": "eslint",
-    "prepublish": "yarn run lint --fix && yarn run build",
-    "build": "yarn tsc",
-    "postinstall": "yarn tsc"
+    "prepublish": "pnpm run lint --fix && pnpm run build",
+    "build": "tsc"
   },
   "keywords": [
     "node",
