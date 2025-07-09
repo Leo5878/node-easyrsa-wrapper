@@ -14,9 +14,9 @@
     "test": "jest --runInBand",
     "coverage": "run test -- --coverage",
     "lint": "eslint",
-    "prepublish": "run lint --fix && pnpm run build",
-    "build": "tsc",
-    "postinstall": "tsc"
+    "prepublish": "yarn run lint --fix && yarn run build",
+    "build": "yarn tsc",
+    "postinstall": "yarn tsc"
   },
   "keywords": [
     "node",
