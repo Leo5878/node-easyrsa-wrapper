@@ -419,7 +419,6 @@ export default class EasyRSA {
 
             return await this.easyrsa(...opts, 'sign-req', type, name);
         } catch (error) {
-            // TODO добавить лог для отладки запуска easyrsa
             if (error instanceof Error) throw error;
             throw new Error('Fail to create certificate');
         }
