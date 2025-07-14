@@ -280,50 +280,53 @@ export default class EasyRSA {
                 if (stdout.includes('Easy-RSA 3 usage and overview')) {
                     return rej(new Error('Input fail'));
                 }
-                if (code) {
-                    if (
-                        stdout.includes(
-                            'Unable to create a CA as you already seem to have one set up.',
-                        )
-                    ) {
-                        return rej(new CaAlreadyExistsError());
-                    }
-                    if (
-                        stdout.includes(
-                            'EASYRSA_PKI does not exist (perhaps you need to run init-pki)?',
-                        )
-                    ) {
-                        return rej(new PkiDirNotFoundError());
-                    }
 
-                    if (
-                        (stderr.includes(
-                            'Could not read CA private key from',
-                        ) ||
-                            stderr.includes('Could not find CA private key')) &&
-                        stderr.includes('maybe wrong password')
-                    ) {
-                        return rej(new BadCaPasswordError());
-                    }
-
-                    if (stdout.includes('Missing expected CA file')) {
-                        return rej(new CaNotFoundError('CA file not exists'));
-                    }
-
-                    if (stdout.includes('Conflicting certificate exists at')) {
-                        return rej(new CertificateAlreadyExistsError());
-                    }
-                    if (
-                        stdout.includes(
-                            'Unable to revoke as no certificate was found',
-                        ) ||
-                        stdout.includes('Missing certificate file')
-                    ) {
-                        return rej(new CertificateNotFoundError());
-                    }
-                    return rej(stderr);
+                if (!code) {
+                    return res(stdout);
                 }
-                return res(stdout);
+
+                if (
+                    stdout.includes(
+                        'Unable to create a CA as you already seem to have one set up.',
+                    )
+                ) {
+                    return rej(new CaAlreadyExistsError());
+                }
+
+                if (
+                    stdout.includes(
+                        'EASYRSA_PKI does not exist (perhaps you need to run init-pki)?',
+                    )
+                ) {
+                    return rej(new PkiDirNotFoundError());
+                }
+
+                if (
+                    (stderr.includes('Could not read CA private key from') ||
+                        stderr.includes('Could not find CA private key')) &&
+                    stderr.includes('maybe wrong password')
+                ) {
+                    return rej(new BadCaPasswordError());
+                }
+
+                if (stdout.includes('Missing expected CA file')) {
+                    return rej(new CaNotFoundError('CA file not exists'));
+                }
+
+                if (stdout.includes('Conflicting certificate exists at')) {
+                    return rej(new CertificateAlreadyExistsError());
+                }
+
+                if (
+                    stdout.includes(
+                        'Unable to revoke as no certificate was found',
+                    ) ||
+                    stdout.includes('Missing certificate file')
+                ) {
+                    return rej(new CertificateNotFoundError());
+                }
+
+                return rej(stderr);
             });
         });
     }
